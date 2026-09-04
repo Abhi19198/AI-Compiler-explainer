@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c1117" />
+  <title>Trace // AI Code Intelligence</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#e8edf2; --muted:#8a98a6; --faint:#53616e; --line:#24303b; --panel:#111a22; --panel-2:#0f171e; --canvas:#0b1117; --cyan:#58d7cf; --orange:#ffae70; --red:#ff7b7b; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--canvas); font-family:"DM Sans", sans-serif; background-image:radial-gradient(circle at 80% -10%, rgba(46,122,130,.18), transparent 36%), linear-gradient(115deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size:auto, 52px 52px; }
+    .shell { max-width:1440px; margin:auto; padding:28px 36px 72px; }
+    header { display:flex; align-items:center; justify-content:space-between; padding-bottom:28px; border-bottom:1px solid var(--line); }
+    .brand { display:flex; gap:13px; align-items:center; }
+    .mark { width:38px; height:38px; display:grid; place-items:center; color:#091215; background:var(--cyan); border-radius:10px; font-family:"JetBrains Mono",monospace; font-weight:600; box-shadow:0 0 32px rgba(88,215,207,.2); }
+    .brand strong { display:block; font-size:15px; letter-spacing:.08em; text-transform:uppercase; }
+    .brand span { display:block; margin-top:3px; color:var(--muted); font-size:12px; }
+    .status { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; }
+    .status i { width:7px; height:7px; display:block; border-radius:50%; background:var(--cyan); box-shadow:0 0 10px var(--cyan); }
+    .intro { padding:48px 0 32px; max-width:700px; }
+    .eyebrow { color:var(--orange); font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; }
+    h1 { margin:12px 0 10px; font-size:clamp(36px,5vw,62px); line-height:.98; letter-spacing:-.04em; max-width:650px; }
+    .intro p { color:var(--muted); font-size:16px; line-height:1.6; margin:0; max-width:570px; }
+    .workspace { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:18px; align-items:start; }
+    .panel { background:rgba(17,26,34,.9); border:1px solid var(--line); border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.16); }
+    .editor { padding:20px; position:sticky; top:20px; }
+    .panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .panel-label { color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+    .counter { color:var(--faint); font-family:"JetBrains Mono",monospace; font-size:11px; }
+    .code-wrap { position:relative; }
+    textarea { width:100%; min-height:338px; display:block; color:#dbe5eb; background:#0a1015; border:1px solid #283642; border-radius:8px; padding:18px; outline:none; resize:vertical; font:13px/1.7 "JetBrains Mono",monospace; tab-size:2; transition:border-color .2s, box-shadow .2s; }
+    textarea:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(88,215,207,.1); }
+    textarea::placeholder { color:#52616c; }
+    .toolbar { display:flex; align-items:center; gap:10px; margin-top:14px; }
+    select, button { font:600 13px "DM Sans",sans-serif; }
+    select { color:var(--ink); background:#18232c; border:1px solid #2b3b48; border-radius:7px; padding:11px 34px 11px 12px; cursor:pointer; }
+    button { border:0; border-radius:7px; padding:12px 18px; cursor:pointer; transition:transform .2s, background .2s; }
+    button:hover { transform:translateY(-1px); } button:disabled { opacity:.55; cursor:wait; transform:none; }
+    .primary { color:#091215; background:var(--cyan); } .primary:hover { background:#7ce5df; }
+    .ghost { margin-left:auto; color:var(--muted); background:transparent; padding:10px; }
+    .hint { display:flex; justify-content:space-between; margin-top:12px; color:var(--faint); font-size:11px; }
+    kbd { border:1px solid #33424e; border-radius:4px; padding:2px 5px; font-family:"JetBrains Mono",monospace; }
+    #status { color:var(--muted); font-size:12px; }
+    .welcome { padding:28px; min-height:430px; display:flex; flex-direction:column; justify-content:center; }
+    .welcome .signal { color:var(--cyan); font:32px "JetBrains Mono",monospace; margin-bottom:18px; }
+    .welcome h2 { margin:0 0 10px; font-size:22px; } .welcome p { color:var(--muted); line-height:1.6; max-width:390px; margin:0; }
+    .result-stack { display:grid; gap:14px; }
+    .result-card { padding:20px; animation:rise .45s ease both; } .result-card:nth-child(2){animation-delay:.04s}.result-card:nth-child(3){animation-delay:.08s}
+    .summary { color:#d8e1e6; line-height:1.65; margin:0; }
+    .meta { color:var(--muted); font-size:12px; margin-top:12px; } .meta b { color:var(--cyan); font-weight:600; }
+    .metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; } .metric { padding:18px; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; }
+    .metric .value { color:var(--orange); font:600 25px "JetBrains Mono",monospace; margin:10px 0 7px; } .metric p { color:var(--muted); font-size:12px; line-height:1.5; margin:0; }
+    h2 { margin:0 0 16px; font-size:15px; } .line-item { padding:13px 0; border-top:1px solid var(--line); } .line-item code { color:var(--cyan); display:block; white-space:pre-wrap; font:12px/1.5 "JetBrains Mono",monospace; margin-bottom:6px; } .line-item span { color:var(--muted); font-size:13px; line-height:1.5; }
+    .flow { background:#f6f8f7; border-radius:7px; padding:12px; overflow:auto; min-height:120px; } .flow svg { max-width:100%; height:auto; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:12px; padding:11px 0; border-top:1px solid var(--line); } .step-num { color:var(--canvas); background:var(--orange); border-radius:50%; width:22px; height:22px; display:grid; place-items:center; font:11px "JetBrains Mono",monospace; } .step strong { font:12px "JetBrains Mono",monospace; color:#dce5e9; } .step p { color:var(--muted); font-size:12px; margin:4px 0 0; }
+    .issue { padding:13px 0; border-top:1px solid var(--line); } .badge { font:600 10px "JetBrains Mono",monospace; text-transform:uppercase; letter-spacing:.08em; } .badge.low { color:var(--cyan) }.badge.medium {color:var(--orange)}.badge.high {color:var(--red)} .issue strong { display:block; font-size:13px; margin:6px 0 4px; }.issue p { color:var(--muted); font-size:12px; line-height:1.5; margin:0; }
+    .error { margin-top:14px; color:var(--red); padding:14px 18px; font-size:13px; }
+    .hidden { display:none !important; }
+    @keyframes rise { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
+    @media (max-width:900px) { .shell { padding:20px 18px 50px; } .workspace { grid-template-columns:1fr; } .editor { position:static; } .welcome { min-height:220px; } }
+    @media (max-width:540px) { header { padding-bottom:20px; } .status { display:none; } .intro { padding:34px 0 25px; } h1 { font-size:40px; } .toolbar { flex-wrap:wrap; } select, .primary { flex:1; } .ghost { margin-left:0; } .metrics { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><div class="brand"><div class="mark">//</div><div><strong>Trace</strong><span>AI code intelligence</span></div></div><div class="status"><i></i> Analysis engine ready</div></header>
+    <section class="intro"><div class="eyebrow">Developer workspace / 01</div><h1>Understand the code beneath the code.</h1><p>Turn unfamiliar snippets into a clear technical story: intent, complexity, execution flow, and risks in one pass.</p></section>
+    <div class="workspace">
+      <section class="panel editor"><div class="panel-head"><span class="panel-label">Source input</span><span class="counter" id="counter">0 / 8,000</span></div><div class="code-wrap"><textarea id="codeInput" spellcheck="false" placeholder="Paste a code snippet to begin..."></textarea></div><div class="toolbar"><select id="langHint" aria-label="Language"><option value="">Auto-detect</option><option value="python">Python</option><option value="java">Java</option><option value="cpp">C / C++</option><option value="javascript">JavaScript</option><option value="csharp">C#</option></select><button class="primary" id="explainBtn" onclick="explainCode()">Analyze snippet <span aria-hidden="true">&rarr;</span></button><button class="ghost" id="clearBtn" type="button">Clear</button></div><div class="hint"><span id="status">Ready when you are.</span><span><kbd>Ctrl</kbd> <kbd>Enter</kbd> to analyze</span></div></section>
+      <section id="emptyState" class="panel welcome"><div class="signal">{ }</div><h2>Your analysis will appear here</h2><p>Submit a function, algorithm, or bug you are investigating. Trace will map the logic and surface what deserves your attention.</p></section>
+      <section id="results" class="result-stack hidden">
+        <div class="panel result-card"><div class="panel-label">Executive readout</div><p id="summary" class="summary" style="margin-top:12px"></p><div class="meta">Detected language <b id="langDetected"></b></div></div>
+        <div class="metrics"><div class="metric"><div class="panel-label">Time complexity</div><div class="value" id="timeValue"></div><p id="timeReasoning"></p></div><div class="metric"><div class="panel-label">Space complexity</div><div class="value" id="spaceValue"></div><p id="spaceReasoning"></p></div></div>
+        <div class="panel result-card"><h2>Line-by-line trace</h2><div id="lineExplanations"></div></div>
+        <div class="panel result-card"><h2>Control flow</h2><div id="mermaid-output" class="flow"></div></div>
+        <div class="panel result-card"><h2>Dry run</h2><div class="meta" style="margin:0 0 12px">Sample input: <b id="sampleInput"></b></div><div id="dryRunSteps"></div><div class="meta">Final output: <b id="finalOutput"></b></div></div>
+        <div class="panel result-card"><h2>Review notes</h2><div id="bugsList"></div></div>
+      </section>
+    </div>
+    <div id="errorBox" class="panel error hidden"></div>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: "base", themeVariables: { primaryColor: "#d9f4f0", primaryTextColor: "#0b1117", lineColor: "#54706f", secondaryColor: "#fff0df" } });
+    const API_BASE = "http://localhost:8000";
+    const codeInput = document.getElementById("codeInput");
+    const counter = document.getElementById("counter");
+    codeInput.addEventListener("input", () => { counter.textContent = `${codeInput.value.length.toLocaleString()} / 8,000`; });
+    document.getElementById("clearBtn").addEventListener("click", () => { codeInput.value = ""; counter.textContent = "0 / 8,000"; codeInput.focus(); });
+    codeInput.addEventListener("keydown", (event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") explainCode(); });
+
+    async function explainCode() {
+      const code = codeInput.value.trim(); const langHint = document.getElementById("langHint").value; const btn = document.getElementById("explainBtn"); const status = document.getElementById("status"); const errorBox = document.getElementById("errorBox");
+      if (!code) { codeInput.focus(); status.textContent = "Add a snippet to begin."; return; }
+      btn.disabled = true; status.textContent = "Reading the logic..."; errorBox.classList.add("hidden"); document.getElementById("results").classList.add("hidden"); document.getElementById("emptyState").classList.remove("hidden");
+      try { const res = await fetch(`${API_BASE}/explain`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ code, language_hint:langHint || null }) }); const data = await res.json(); if (!res.ok) throw new Error(data.detail || "Analysis failed"); renderResults(data); status.textContent = "Analysis complete."; } catch (error) { errorBox.textContent = `Unable to analyze: ${error.message}`; errorBox.classList.remove("hidden"); status.textContent = "Check the connection and try again."; } finally { btn.disabled = false; }
+    }
+    function renderResults(data) {
+      document.getElementById("emptyState").classList.add("hidden"); document.getElementById("results").classList.remove("hidden"); document.getElementById("summary").textContent = data.summary; document.getElementById("langDetected").textContent = data.language_detected; document.getElementById("timeValue").textContent = data.time_complexity.value; document.getElementById("timeReasoning").textContent = data.time_complexity.reasoning; document.getElementById("spaceValue").textContent = data.space_complexity.value; document.getElementById("spaceReasoning").textContent = data.space_complexity.reasoning;
+      const lineDiv = document.getElementById("lineExplanations"); lineDiv.innerHTML = ""; data.line_by_line_explanation.forEach(item => { const el=document.createElement("div"); el.className="line-item"; el.innerHTML=`<code>${escapeHtml(item.line)}</code><span>${escapeHtml(item.explanation)}</span>`; lineDiv.appendChild(el); });
+      const flow = document.getElementById("mermaid-output"); flow.innerHTML=""; mermaid.render(`flow-${Date.now()}`, data.flowchart_mermaid).then(({svg}) => flow.innerHTML=svg).catch(() => flow.innerHTML="<span style='color:#d66'>Flowchart could not be rendered.</span>");
+      document.getElementById("sampleInput").textContent=data.dry_run.sample_input; document.getElementById("finalOutput").textContent=data.dry_run.final_output; const steps=document.getElementById("dryRunSteps"); steps.innerHTML=""; data.dry_run.steps.forEach(item => { const el=document.createElement("div"); el.className="step"; el.innerHTML=`<div class="step-num">${item.step}</div><div><strong>${escapeHtml(item.state)}</strong><p>${escapeHtml(item.note)}</p></div>`; steps.appendChild(el); });
+      const bugs=document.getElementById("bugsList"); bugs.innerHTML=""; if (!data.bugs_and_suggestions.length) bugs.innerHTML="<div class='meta' style='margin:0'>No issues found in this snippet.</div>"; data.bugs_and_suggestions.forEach(item => { const el=document.createElement("div"); el.className="issue"; el.innerHTML=`<span class="badge ${item.severity}">${escapeHtml(item.severity)}</span><strong>${escapeHtml(item.issue)}</strong><p>${escapeHtml(item.suggestion)}</p>`; bugs.appendChild(el); });
+    }
+    function escapeHtml(value) { const div=document.createElement("div"); div.textContent=value; return div.innerHTML; }
+  </script>
+</body>
+</html>
