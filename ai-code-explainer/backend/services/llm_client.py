@@ -1,11 +1,27 @@
-import os
 import json
+import os
 import re
+
 from anthropic import AsyncAnthropic
 
-client = AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+
+# anthropic 0.34.2 passes `proxies` to httpx, which httpx 0.28 removed, so
+# requirements.txt pins httpx==0.27.2. Keep the client lazy as well: building
+# it at import time used to crash the whole app when ANTHROPIC_API_KEY was
+# unset, before any request was served.
+_client: AsyncAnthropic | None = None
+
+
+def _get_client() -> AsyncAnthropic:
+    global _client
+    if _client is None:
+        _client = AsyncAnthropic(
+            api_key=os.environ.get("ANTHROPIC_API_KEY"),
+            timeout=60.0,
+        )
+    return _client
+
 
 SYSTEM_PROMPT = """You are an expert Senior Software Engineer and Code Reviewer AI assistant integrated into a developer tool called "AI Code Explainer".
 
@@ -59,14 +75,14 @@ def _strip_json_fences(text: str) -> str:
 
 
 async def explain_code(code: str, language_hint: str | None = None) -> dict:
-  if not os.environ.get("ANTHROPIC_API_KEY"):
-    raise ValueError(
-      "ANTHROPIC_API_KEY is missing. Add it to backend/.env and restart the server."
-    )
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise ValueError(
+            "ANTHROPIC_API_KEY is missing. Add it to backend/.env and restart the server."
+        )
 
     user_message = f"Language hint: {language_hint or 'unknown'}\n\nCode:\n```\n{code}\n```"
 
-    response = await client.messages.create(
+    response = await _get_client().messages.create(
         model=MODEL,
         max_tokens=2000,
         system=SYSTEM_PROMPT,
