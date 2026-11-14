@@ -83,15 +83,36 @@ Request body:
 
 Response: structured JSON with `language_detected`, `line_by_line_explanation`, `time_complexity`, `space_complexity`, `dry_run`, `flowchart_mermaid`, `bugs_and_suggestions`, and `summary`.
 
+Without `ANTHROPIC_API_KEY` the endpoint returns `502` with a message saying the key is missing. The app itself still starts and `/health` still answers — the Anthropic client is only built when an explanation is requested.
+
+## Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+21 tests, no API key and no network needed: the Claude call is stubbed. They cover `/health`, `/explain` success, identical-request caching, `422` validation (empty / missing / over-long / wrong-typed code), `502` when the key is missing, and a generic `500` that does not leak internal error text. A GitHub Actions workflow running this suite on Python 3.11 and 3.12 was prepared (`.github/workflows/ci.yml`) but could **not** be pushed: the GitHub App used here returns `403 Resource not accessible by integration` for workflow files — it lacks the Workflows permission. To enable CI, add that file from the repo's web UI or grant the app workflow access, then the suite runs on every push/PR to `main`.
+
+## Docker
+
+```bash
+docker build -t ai-code-explainer .
+docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... ai-code-explainer
+```
+
+The key is passed at runtime, never baked into the image.
+
 ## Next Steps to Make This "Company-Level"
 
 - [ ] Add rate limiting (`slowapi`) to prevent abuse
 - [ ] Replace in-memory cache with Redis for multi-instance deployments
 - [ ] Add authentication (API keys or JWT) if exposing publicly
-- [ ] Add automated tests (`pytest`) covering the `/explain` endpoint with sample snippets
+- [x] Add automated tests (`pytest`) covering the `/explain` endpoint with sample snippets
 - [ ] Add syntax highlighting in the frontend (e.g. `highlight.js`)
 - [ ] Migrate frontend to React for component reuse if the UI grows
-- [ ] Add Docker + docker-compose for one-command local setup
+- [ ] Add Docker + docker-compose for one-command local setup (Dockerfile added; docker-compose not yet)
 - [ ] Deploy backend (Railway/Render/Fly.io) and frontend (Vercel/Netlify)
 - [ ] Add logging + monitoring (e.g. Sentry) for production errors
 - [ ] Add streaming responses if snippets get long and users want live feedback

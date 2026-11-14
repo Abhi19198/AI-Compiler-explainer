@@ -1,58 +1,82 @@
-# 🧠 AI Compiler Explainer
+# 🧠 AI Code Explainer
 
-> An AI-powered platform that makes compiler concepts and code execution easier to understand through intelligent explanations and visual representations.
+> Paste a code snippet and get a professional breakdown: a line-by-line explanation, time/space complexity, a dry run, a Mermaid flowchart, and bug/improvement suggestions — powered by Claude.
 
 ## 🚀 Overview
 
-**AI Compiler Explainer** is an educational AI-based application designed to help students and developers understand how source code is processed by a compiler.
+**AI Code Explainer** is a small web app for students and developers who want to understand unfamiliar code quickly.
 
-Instead of simply showing the final output, the platform focuses on explaining the **journey of code through different compiler phases** in a simple and understandable way.
+Instead of just showing what code does, it explains it piece by piece: what each line means, how expensive it is, how it executes step by step, and what could go wrong with it.
 
-The system can analyze source code and explain concepts such as:
+Given a snippet, it returns:
 
-- Lexical Analysis
-- Syntax Analysis
-- Semantic Analysis
-- Intermediate Representation
-- Optimization
-- Code Generation
-- Errors and their causes
+- **Line-by-line explanation** — each line in plain language
+- **Time & space complexity** — Big-O with reasoning
+- **Dry run** — a worked example with variable states and final output
+- **Flowchart** — a Mermaid.js diagram of the control flow
+- **Bugs & suggestions** — issues found, with severity and fixes
+- **Summary** — a 2–3 line overview of what the code does
 
-The goal is to bridge the gap between **theoretical compiler concepts and practical code execution**.
-
----
-
-## ✨ Features
-
-### 🔍 Code Analysis
-Analyze source code and understand how it is processed internally.
-
-### 🤖 AI-Powered Explanations
-Get simplified explanations of complex compiler concepts using AI.
-
-### 🧩 Compiler Phase Visualization
-Understand the flow of code through different compiler stages.
+## 🧱 How it works
 
 ```text
-Source Code
+Code snippet (any language)
      │
      ▼
-Lexical Analysis
+FastAPI backend (POST /explain)
      │
      ▼
-Syntax Analysis
+Claude API (structured JSON response)
      │
      ▼
-Semantic Analysis
-     │
-     ▼
-Intermediate Representation
-     │
-     ▼
-Optimization
-     │
-     ▼
-Code Generation
-     │
-     ▼
-Machine Code
+Single-page frontend — summary, complexity,
+line-by-line trace, flowchart, dry run, review notes
+```
+
+## 📁 Project layout
+
+```text
+ai-code-explainer/
+├── backend/        # FastAPI app (see its README for setup)
+└── frontend/       # Single-file HTML/JS UI, no build step
+```
+
+Full setup, API docs and next steps: [`ai-code-explainer/README.md`](ai-code-explainer/README.md).
+
+## ⚡ Quick start
+
+```bash
+cd ai-code-explainer/backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # add your ANTHROPIC_API_KEY
+uvicorn main:app --reload --port 8000
+```
+
+```bash
+cd ai-code-explainer/frontend
+python -m http.server 5500
+# open http://localhost:5500
+```
+
+Or run the backend in Docker (key passed at runtime, never baked in):
+
+```bash
+docker build -t ai-code-explainer .
+docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... ai-code-explainer
+```
+
+## ✅ Tests
+
+```bash
+cd ai-code-explainer/backend
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+Tests stub the Claude call, so they run with no API key and no network. A live explanation needs a real `ANTHROPIC_API_KEY`.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

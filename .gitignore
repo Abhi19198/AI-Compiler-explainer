@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+!.env.example
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Node (if a frontend build is ever added)
+node_modules/
+dist/
